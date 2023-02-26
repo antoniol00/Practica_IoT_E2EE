@@ -1,9 +1,9 @@
 import paho.mqtt.client as mqtt
-import random
+from faker import Faker
 import time
 from config import *
 
-mqtt_topic = "GrupoB/movement/data"
+mqtt_topic = "GrupoB/air/data"
 
 # Definimos una función para manejar el evento on_connect del cliente MQTT
 def on_connect(client, userdata, flags, rc):
@@ -31,15 +31,16 @@ def conectar():
 
 def enviar_mensaje(mqtt_topic, client):
     # Generar una señal aleatoria de 0 o 1 para representar la presencia o ausencia de movimiento
-    movimiento = random.randint(0, 1)
+    co2_level = fake.random_int(min=400, max=2000)
     # Crear un mensaje MQTT con la señal de movimiento
-    mensaje = "{0}".format(movimiento)
+    mensaje = "Nivel de CO2: {} ppm".format(co2_level)
+    print(mensaje)
     # Conectar al broker MQTT y enviar el mensaje
     client.publish(mqtt_topic, mensaje)
 
-
+fake = Faker()
 client = conectar()
 while True:
     enviar_mensaje(mqtt_topic, client)
-    # Esperar un intervalo de tiempo aleatorio entre 5 y 10 segundos
-    time.sleep(random.randint(5, 10))
+    # Esperar un intervalo de tiempo fijo de 1 segundo
+    time.sleep(1)
