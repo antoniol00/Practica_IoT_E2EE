@@ -2,14 +2,26 @@
 
 In Windows:
 ```
-.\env\Scripts\activate.bat
+python -m venv env
+.\env\Scripts\activate.bat      #Command prompt
+.\env\Scripts\Activate.ps1      #Powershell
 pip install -r requirements.txt
 ```
 
 In Linux:
 ```
+python -m venv env
 source env/Scripts/activate
 pip install -r requirements.txt
+```
+
+Then, you must create a `.env` file in the root directory containing this information:
+
+```
+MQTT_BROKER=###     # URL for broker connection
+MQTT_PORT=#####     # Port used
+BROKER_USER=###     # User identification
+BROKER_PASS=###     # Password
 ```
 
 ## DEVICES 🖥️
@@ -21,9 +33,10 @@ pip install -r requirements.txt
 To run an instance of a device use these commands:
 
 ```
-python .\devices\air_sensor.py  # Air Sensor
-python .\devices\hum_temp.py    # Hum/Temp sensor
-python .\devices\thermostat.py  # Thermostat
+cd .\devices
+python air_sensor.py  # Air Sensor
+python hum_temp.py    # Hum/Temp sensor
+python thermostat.py  # Thermostat
 ```
 
 ## PLAFTORM 🌐
@@ -31,5 +44,6 @@ python .\devices\thermostat.py  # Thermostat
 To view the platform application run this command. It has a web interface to manage the application:
 
 ```
-flask --app .\platform\app.py run
+cd .\platform
+python app.py
 ```
