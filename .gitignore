@@ -17,3 +17,5 @@ build/
 .idea/
 docs/_build/
 .vscode
+
+instance/

@@ -24,6 +24,15 @@ BROKER_USER=###     # User identification
 BROKER_PASS=###     # Password
 ```
 
+Then, the database must be created. Run python in platform folder and execute the following commands:
+
+```
+>>> from app import *
+>>> with app.app_context():
+...     db.create_all()  
+>>> exit()
+```
+
 ## DEVICES 🖥️
 
 - **Air sensor**: measures air quality and sends $CO_2$ level each seconds.
