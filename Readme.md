@@ -24,12 +24,19 @@ BROKER_USER=###     # User identification
 BROKER_PASS=###     # Password
 ```
 
-Then, the database must be created. Run python in platform folder and execute the following commands:
+Then, the database must be created. First, run the Flask app and stop it:
+
+```
+python app.py
+```
+
+That will create an instance folder and a database file. Then, run python in `platform` folder and execute the following commands:
 
 ```
 >>> from app import *
 >>> with app.app_context():
-...     db.create_all()  
+...     db.create_all() 
+... 
 >>> exit()
 ```
 
