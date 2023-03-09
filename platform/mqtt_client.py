@@ -1,4 +1,5 @@
-from app import app, Device, db
+import sys
+sys.path.append("..") # Adds higher directory to python modules path.
 import json
 import paho.mqtt.client as mqtt
 from dotenv import load_dotenv

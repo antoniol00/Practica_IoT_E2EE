@@ -24,7 +24,7 @@ BROKER_USER=###     # User identification
 BROKER_PASS=###     # Password
 ```
 
-Then, the database must be created. First, run the Flask app and stop it:
+Then, the database must be created. First, run the Flask app inside `platform` folder and **stops** it:
 
 ```
 python app.py
