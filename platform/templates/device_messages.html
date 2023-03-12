@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<title>IoT Platform - {{ device.name }} - Messages</title>
+{% endblock %}
+
+{% block body %}
+
+<div class="container">
+    <h1><i class="fas fa-signal"></i> IoT Platform</h1>
+    <hr>
+    <a href="/" class="btn btn-secondary mb-4"><i class="fas fa-arrow-left"></i> Back to Devices</a>
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <i class="fas fa-info-circle"></i> Device Information
+                </div>
+                <div class="card-body">
+                    <ul class="list-unstyled">
+                        <li><i class="fas fa-id-badge"></i> Device ID: {{ device.id }}</li>
+                        <li><i class="fas fa-map-marker-alt"></i> Location: {{ device.location }}</li>
+                        <li><i class="fas fa-microchip"></i> Type: {{ device.type }}</li>
+                        <li><i class="fas fa-lock"></i> Encryption Mode: {{ device.encryption_mode }}</li>
+                        <li><i class="fas fa-certificate"></i> Encryption Algorithm: {{ device.encryption_algorithm }}
+                        </li>
+                        <li><i class="fas fa-fingerprint"></i> Hash Algorithm: {{ device.hash_algorithm }}</li>
+                        <li><i class="fas fa-exchange-alt"></i> DH Algorithm: {{ device.dh_algorithm }}</li>
+                        <li><i class="fas fa-calendar-alt"></i> Last key update: {{device.date_register.strftime('%d/%m/%Y %H:%M:%S')}}</li>
+                        <li><i class="fas fa-calendar-alt"></i> Next key update : {{next_key_update.strftime('%d/%m/%Y %H:%M:%S')}}</li>
+
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <i class="fas fa-table"></i> {{ device.name }} - Messages
+                </div>
+                <div class="card-body">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Message</th>
+                                <th>Timestamp</th>
+                                {% if device.encryption_mode == 'AEAD' %}
+                                <th>AAD</th>
+                                {% endif %}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for message in messages %}
+                            <tr>
+                                <td>{{ message.message }}</td>
+                                <td>{{ message.time.strftime('%d/%m/%Y %H:%M:%S') }}</td>
+                                {% if device.encryption_mode == 'AEAD' %}
+                                <td>{{ message.aad }}</td>
+                                {% endif %}
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+
+                </div>
+            </div>
+        </div>
+
+
+    </div>
+
+</div>
+
+{% endblock %}

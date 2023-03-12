@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, redirect
 from flask_sqlalchemy import SQLAlchemy
+from datetime import timedelta
 from datetime import datetime
 import sys
 import subprocess
@@ -40,6 +41,7 @@ class Message(db.Model):
     __tablename__ = 'message'
     id = db.Column(db.Integer, primary_key=True)
     message = db.Column(db.String(200), nullable=False)
+    aad = db.Column(db.String(200), nullable=True)
     time = db.Column(db.DateTime, default=datetime.now)
     device_id = db.Column(db.String(200), db.ForeignKey(
         'device.id'), nullable=False)
@@ -49,9 +51,10 @@ class Message(db.Model):
     def __repr__(self):
         return '<Message %r>' % self.message
 
-    def __init__(self, message, device):
+    def __init__(self, message, device, aad):
         self.message = message
         self.device = device
+        self.aad = aad
 
 
 @app.route('/')
@@ -60,26 +63,29 @@ def index():
     return render_template('index.html', devices=devices)
 
 
-@app.route('/eliminar_dispositivo/<string:device_id>', methods=['POST'])
-def eliminar_dispositivo(device_id):
+@app.route('/remove/<string:device_id>', methods=['POST'])
+def remove(device_id):
     device = Device.query.get(device_id)
     if device:
         db.session.delete(device)
         db.session.commit()
     return redirect('/')
 
-
-@app.route('/informacion_dispositivo/<string:device_id>', methods=['GET'])
-def informacion_dispositivo(device_id):
-    messages = Message.query.filter_by(device_id=device_id).order_by(Message.time.desc())
+@app.route('/device/<string:device_id>/messages', methods=['GET'])
+def device(device_id):
+    
     device = Device.query.get(device_id)
+    messages = Message.query.filter_by(device_id=device_id).order_by(Message.time.desc()).limit(10).all()
+    next_key_update = device.date_register + timedelta(minutes=5)
+
     # lógica para obtener la información del dispositivo correspondiente al ID
-    return render_template('informacion_dispositivo.html', messages=messages, device=device)
+    return render_template('device_messages.html', device=device, messages=messages,next_key_update=next_key_update)
 
 def recreate_db():
     with app.app_context():
         db.drop_all()
         db.create_all()
+
 
 if __name__ == "__main__":
     recreate_db()

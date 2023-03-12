@@ -93,7 +93,7 @@ class Platform:
         with app.app_context():
             device = Device.query.filter_by(
                 id=msg_dec['device_id']).first()
-            message = Message(plaintext, device)
+            message = Message(plaintext, device, result['aad'])
             db.session.add(message)
             db.session.commit()
         print(f"Recieved the following encrypted message {plaintext}")
@@ -134,7 +134,7 @@ class Platform:
         with app.app_context():
             device = Device.query.filter_by(
                 id=msg_dec['device_id']).first()
-            message = Message(plaintext.decode(), device)
+            message = Message(plaintext.decode(), device, None)
             db.session.add(message)
             db.session.commit()
         print(f"Recieved the following encrypted message: {plaintext}")
@@ -199,8 +199,7 @@ class Platform:
         }
 
         print("Generating new DH parameters... (this may take a while)")
-        self.generate_new_dh_parameters(
-            msg_dec['dh_algorithm'])  # generate new DH parameters
+        self.generate_new_dh_parameters(msg_dec['dh_algorithm'])  # generate new DH parameters
 
         platform_pk = self.platform_public_key.public_bytes(
             encoding=Encoding.PEM, format=PublicFormat.SubjectPublicKeyInfo)
@@ -327,7 +326,7 @@ class Platform:
 
     def generate_new_dh_parameters(self, algo):
         if algo == 'ecdh':
-            self.platform_private_key = ec.generate_private_key(ec.SECP384R1)
+            self.platform_private_key = ec.generate_private_key(ec.SECP384R1())
             self.platform_public_key = self.platform_private_key.public_key()
             return
         if algo == 'dh-2048':
