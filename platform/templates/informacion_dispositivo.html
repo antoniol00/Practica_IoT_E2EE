@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<title>Plataforma IoT - {{ device.name }} - Mensajes</title>
+{% endblock %}
+
+{% block body %}
+
+<div class="container">
+    <h1><i class="fas fa-signal"></i> Plataforma IOT</h1>
+    <hr>
+    <div class="card">
+        <div class="card-header">
+            <i class="fas fa-list"></i> {{ device.name }} - Mensajes
+        </div>
+        <div class="card-body">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Mensaje</th>
+                        <th>Fecha y Hora</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for message in messages %}
+                    <tr>
+                        <td>{{ message.id }}</td>
+                        <td>{{ message.message }}</td>
+                        <td>{{ message.time.strftime('%d/%m/%Y %H:%M:%S') }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

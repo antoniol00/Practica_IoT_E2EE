@@ -15,30 +15,31 @@
         </div>
         <div class="card-body">
             {% for device in devices %}
-            <h2>{{ device.name }}</h2>
-            <p>Ubicación: {{ device.location }}</p>
-            <hr>
+            <div class="row mb-3">
+                <div class="col-md-8">
+                    <h2>{{ device.name }}</h2>
+                    <p>Ubicación: {{ device.location }}</p>
+                </div>
+                <div class="col-md-4">
+                    <form method="POST" action="{{ url_for('eliminar_dispositivo', device_id=device.id) }}">
+                        <button type="submit" class="btn btn-danger mb-2">
+                            <i class="fas fa-trash"></i> Eliminar
+                        </button>
+                    </form>
+                    <form method="GET" action="{{ url_for('informacion_dispositivo', device_id=device.id) }}">
+                        <button type="submit" class="btn btn-info mb-2">
+                            <i class="fas fa-info-circle"></i> Información
+                        </button>
+                    </form>
+                </div>
+            </div>
             {% endfor %}
         </div>
     </div>
-    <div class="card">
-        <div class="card-header">
-            <i class="fas fa-plus-circle"></i> Registrar Dispositivo
-        </div>
-        <div class="card-body">
-            <form>
-                <div class="form-group">
-                    <label for="tipo">Tipo de dispositivo:</label>
-                    <input type="text" class="form-control" id="tipo" name="tipo">
-                </div>
-                <div class="form-group">
-                    <label for="ubicacion">Ubicación:</label>
-                    <input type="text" class="form-control" id="ubicacion" name="ubicacion">
-                </div>
-                <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Registrar</button>
-            </form>
-        </div>
-    </div>
 </div>
+
+
+
+
 
 {% endblock %}
