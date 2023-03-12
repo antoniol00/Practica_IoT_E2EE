@@ -24,22 +24,6 @@ BROKER_USER=###     # User identification
 BROKER_PASS=###     # Password
 ```
 
-Then, the database must be created. First, run the Flask app inside `platform` folder and **stops** it:
-
-```
-python app.py
-```
-
-That will create an instance folder and a database file. Then, run python in `platform` folder and execute the following commands:
-
-```
->>> from app import *
->>> with app.app_context():
-...     db.create_all() 
-... 
->>> exit()
-```
-
 ## DEVICES 🖥️
 
 - **Air sensor**: measures air quality and sends $CO_2$ level each seconds.
@@ -57,7 +41,7 @@ python thermostat.py  # Thermostat
 
 ## PLAFTORM 🌐
 
-To view the platform application run this command. It has a web interface to manage the application:
+To view the platform application run this command. It has a web interface to manage the application (the database linked to the application will be created automatically and recreated each time the application is run):
 
 ```
 cd .\platform

@@ -94,7 +94,7 @@ class Platform:
             device = Device.query.filter_by(
                 id=msg_dec['device_id']).first()
             message = Message(plaintext, device)
-            db.session.add(message.decode())
+            db.session.add(message)
             db.session.commit()
         print(f"Recieved the following encrypted message {plaintext}")
         print(
@@ -134,8 +134,8 @@ class Platform:
         with app.app_context():
             device = Device.query.filter_by(
                 id=msg_dec['device_id']).first()
-            message = Message(plaintext, device)
-            db.session.add(message.decode())
+            message = Message(plaintext.decode(), device)
+            db.session.add(message)
             db.session.commit()
         print(f"Recieved the following encrypted message: {plaintext}")
 

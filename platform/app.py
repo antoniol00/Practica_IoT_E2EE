@@ -76,8 +76,13 @@ def informacion_dispositivo(device_id):
     # lógica para obtener la información del dispositivo correspondiente al ID
     return render_template('informacion_dispositivo.html', messages=messages, device=device)
 
+def recreate_db():
+    with app.app_context():
+        db.drop_all()
+        db.create_all()
 
 if __name__ == "__main__":
+    recreate_db()
     mqtt_client_process = subprocess.Popen(
         [sys.executable, 'platform_mqtt.py'])
     app.run(debug=False)
