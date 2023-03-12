@@ -46,7 +46,7 @@ That will create an instance folder and a database file. Then, run python in `pl
 - **Humidity / Temperature sensor**: measures humidity and temperature and sends a JSON with the information each 5-10 seconds.
 - **Thermostat**: shows information about configured temperature for the house, allowing the user to modify it manually. It can also establish computed values based on the time of the day and the season.
 
-To run an instance of a device use these commands:
+To run an instance of a device use these commands (you can specify --verbose to show all messages):
 
 ```
 cd .\devices

@@ -14,7 +14,7 @@ encryption_algorithms = {"aes-256": AES256}
 
 from cryptography.hazmat.primitives.hashes import SHA256, SHA512, SHA3_256, SHA3_512
 
-hashes = {  'sha-256': SHA256,
+hashes_algorithms = {  'sha-256': SHA256,
             'sha-512': SHA512,
             'sha3-256': SHA3_256,
             'sha3-512': SHA3_512}
