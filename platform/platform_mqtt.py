@@ -131,19 +131,20 @@ class Platform:
         msg_dec = json.loads(decoded_payload)
 
         if msg.topic.startswith("GrupoB/data"):
-            if msg_dec['device_id'] not in self.devices:
-                print("Recieved data from unregistered device")
-                return
-            if msg_dec['enc'] == 'AE':
-                self.decrypt_ae(
-                    msg.payload, self.devices[msg_dec['device_id']]['aes_key'])
-            elif msg_dec['enc'] == 'AEAD':
-                self.decrypt_aead(
-                      msg.payload, self.devices[msg_dec['device_id']]['aes_key'])
-            else:
-                print(
-                    f"Recieved data from device with unknown message type: {msg_dec['msg_type']}")
-                return
+            with app.app_context():
+                if msg_dec['device_id'] not in self.devices or self.devices[msg_dec['device_id']]['registered'] == False or Device.query.filter_by(device_id=msg_dec['device_id']).first() == None  :
+                    print("Recieved data from unregistered device")
+                    return
+                if msg_dec['enc'] == 'AE':
+                    self.decrypt_ae(
+                        msg.payload, self.devices[msg_dec['device_id']]['aes_key'])
+                elif msg_dec['enc'] == 'AEAD':
+                    self.decrypt_aead(
+                        msg.payload, self.devices[msg_dec['device_id']]['aes_key'])
+                else:
+                    print(
+                        f"Recieved data from device with unknown message type: {msg_dec['msg_type']}")
+                    return
 
         elif msg.topic.startswith("GrupoB/new_device"):
             if msg_dec['msg_type'] == 'hello':
@@ -298,7 +299,7 @@ class Platform:
                 raise InvalidSignature
         except InvalidSignature:
             print('HMAC not verified! Rejecting challenge and deleting device...')
-            self.devices[msg_dec['device_id']]
+            del self.devices[msg_dec['device_id']]
 
     def generate_new_dh_parameters(self, algo):
         if algo == 'ecdh':
