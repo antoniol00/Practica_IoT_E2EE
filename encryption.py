@@ -3,14 +3,16 @@ from cryptography.hazmat.primitives.ciphers.aead import ChaCha20Poly1305, AESGCM
 aead_algorithms = {"chacha": ChaCha20Poly1305,
                    "aes-gcm": AESGCM,
                    "aes-ccm": AESCCM,
-                   "aes-ocb3": AESOCB3,
-                   #no nonce
-                   #"aes-siv": AESSIV
+                   "aes-ocb3": AESOCB3
                    }
 
-from cryptography.hazmat.primitives.ciphers.algorithms import AES256    
+from cryptography.hazmat.primitives.ciphers.algorithms import AES256, AES, Camellia
 
-encryption_algorithms = {"aes-256": AES256}
+encryption_algorithms = {
+    "aes-256": AES256,
+    "aes-128": AES,
+    "camellia-256": Camellia
+}
 
 from cryptography.hazmat.primitives.hashes import SHA256, SHA512, SHA3_256, SHA3_512
 

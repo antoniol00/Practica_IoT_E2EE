@@ -59,7 +59,6 @@ class AirSensor:
         self.client.connect(os.getenv("MQTT_BROKER"),
                             int(os.getenv("MQTT_PORT")))
 
-
         # get device info from user
         name = input("Device name: ")
         location = input("Device location: ")
@@ -83,7 +82,15 @@ class AirSensor:
                 except ValueError:
                     print("Invalid AEAD algorithm. Please try again.")
         else:
-            self.algo_name = 'aes-256'
+            while True:
+                try:
+                    self.algo_name = input(
+                        "AE algorithm (aes-256, aes-128, camellia-256): ")
+                    if self.algo_name not in encryption_algorithms:
+                        raise ValueError
+                    break
+                except ValueError:
+                    print("Invalid AE algorithm. Please try again.")
         while True:
             try:
                 self.hash_name = input(
@@ -283,14 +290,14 @@ class AirSensor:
         if args.verbose:
             print(f"{signature=}")
 
-        data = {'enc': 'AE',
-                'iv': iv.hex(),
-                'ct': ct.hex(),
-                'signature': signature.hex(),
-                'algo_name': algo_name,
-                'hash_name': hash_name,
-                'device_id': self.device_id
-                }
+            data = {'enc': 'AE',
+                    'iv': iv.hex(),
+                    'ct': ct.hex(),
+                    'signature': signature.hex(),
+                    'algo_name': algo_name,
+                    'hash_name': hash_name,
+                    'device_id': self.device_id
+                    }
         # publish the message to the broker
         self.client.publish(self.mqtt_topic_data, json.dumps(data))
         if args.verbose:

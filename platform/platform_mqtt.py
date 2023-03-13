@@ -148,7 +148,7 @@ class Platform:
             with app.app_context():
                 device = Device.query.filter_by(
                     id=msg_dec['device_id']).first()
-                if device == None:
+                if device == None and msg_dec['device_id'] in self.devices:
                     del self.devices[msg_dec['device_id']]
                 if msg_dec['device_id'] not in self.devices or self.devices[msg_dec['device_id']]['is_registered'] == False:
                     print("Recieved data from unregistered device")
