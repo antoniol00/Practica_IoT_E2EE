@@ -150,6 +150,12 @@ class AirSensor:
         msg_dec = json.loads(decoded_payload)
         if msg.topic == self.mqtt_topic_connect_platform and msg_dec["msg_type"] == 'platform_public_key':
             self.device_info['is_registered'] = False
+            if 'renew' in msg_dec.keys() and msg_dec['renew'] == True:
+                if self.verify_renewal(msg_dec):
+                    print("Renewal request accepted!")
+                else:
+                    print("Renewal request rejected! Session key will not be renewed.")
+                    return
             if args.verbose:
                 print("STEP 3. Generating session key from platform public key...")
 
@@ -270,6 +276,39 @@ class AirSensor:
             
             self.device_info['is_registered'] = True
 
+    def verify_renewal(self, msg_dec):
+        if args.verbose:
+            print("Verifying renewal challenge...")
+        # Derive a secret key using HKDF
+        hkdf = HKDF(
+            algorithm=hashes.SHA256(),
+            length=32,
+            salt=None,
+            info=b'HMAC DH secret key',
+        ).derive(self.device_info['session_key'])
+
+        # Retrieve the message and digest from the received challenge
+        received_message = bytes.fromhex(msg_dec['challenge'])
+        digest = received_message[-32:]
+
+        # Verify the HMAC
+        hmac_key = hkdf[:16]
+        h = HMAC(hmac_key, hashes.SHA256())
+        h.update(received_message[:-32])
+        try:
+            h.verify(digest)
+            if received_message[:-32] == b'I am the platform, we are going to renew your key ' + self.device_id.encode():
+                if args.verbose:
+                    print('HMAC verified! Renewing key...')
+                    return True
+            else:
+                raise InvalidSignature
+        except InvalidSignature:
+            print('HMAC not verified! Rejecting challenge and continuing...')
+            return False
+
+
+       
     def send_ae_message(self, message, key, client, algo_name, hash_name):
         # create a new encryption algorithm instance
         algo = encryption_algorithms[algo_name](key)

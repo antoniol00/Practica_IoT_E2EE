@@ -3,7 +3,11 @@ from flask_sqlalchemy import SQLAlchemy
 from datetime import timedelta
 from datetime import datetime
 import sys
+import os
 import subprocess
+from dotenv import load_dotenv
+
+load_dotenv()  # load environment variables from .env file
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///test.db' # database name and path
@@ -80,7 +84,7 @@ def remove(device_id):
 def device(device_id):
     device = Device.query.get(device_id)
     messages = Message.query.filter_by(device_id=device_id).order_by(Message.time.desc()).limit(10).all() # get last 10 messages
-    next_key_update = device.date_register + timedelta(minutes=5) # compute next key update
+    next_key_update = device.date_register + timedelta(seconds=int(os.getenv("RENEWAL_TIME"))) # compute next key update
     return render_template('device_messages.html', device=device, messages=messages,next_key_update=next_key_update)
 
 def recreate_db():

@@ -22,6 +22,8 @@ MQTT_BROKER=###     # URL for broker connection
 MQTT_PORT=#####     # Port used
 BROKER_USER=###     # User identification
 BROKER_PASS=###     # Password
+RENEWAL_TIME=###    # Key renewal time (in seconds)
+```
 ```
 
 ## DEVICES 🖥️

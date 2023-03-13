@@ -294,6 +294,7 @@ class Platform:
                         device = Device.query.filter_by(
                             id=msg_dec['device_id']).first()
                         device.date_register = datetime.now()
+                        self.devices[msg_dec['device_id']]['last_update'] = datetime.now()
                         db.session.commit()
                         print('Device ' + msg_dec['device_id'] +
                               ' updated registered!')
@@ -351,8 +352,9 @@ class Platform:
             current_time = datetime.now()
 
             for dev in self.devices:
+
                 # If the device is registered and the last update was more than 5 minutes ago
-                if self.devices[dev]['is_registered'] and (current_time - self.devices[dev]['last_update']).total_seconds() > 300:
+                if self.devices[dev]['is_registered'] and (current_time - self.devices[dev]['last_update']).total_seconds() > int(os.getenv("RENEWAL_TIME")):
                     print("Key rotation for device " + dev + " is required...")
                     print("STEP 1. Update the DH parameters for device " + dev)
                     # Generate new DH parameters
@@ -361,18 +363,49 @@ class Platform:
                     # Send the platform public key to the device
                     platform_pk = self.platform_public_key.public_bytes(
                         encoding=Encoding.PEM, format=PublicFormat.SubjectPublicKeyInfo)
-                    data = {
-                        'msg_type': 'platform_public_key',
-                        'dh_parameters': base64.b64encode(self.param_bytes).decode('utf-8'),
-                        'platform_public_key': base64.b64encode(platform_pk).decode('utf-8')
-                    }
+                    # The message will also include a HMAC using the old session key to prevent impersonation (a paltform could send this message to a device)
+                    print("Generating challenge for device " + dev + "...")
+                    # Generate a random challenge
+                    hkdf = HKDF(
+                        algorithm=hashes.SHA256(),
+                        length=32,
+                        salt=None,
+                        info=b'HMAC DH secret key',
+                    ).derive(self.devices[dev]['session_key'])
+                    self.devices[dev]['aes_key'] = hkdf
+
+                    # Compute the HMAC
+                    hmac_key = hkdf[:16]
+                    message = ('I am the platform, we are going to renew your key ' +
+                            dev).encode('utf-8')
+                    h = HMAC(hmac_key, hashes.SHA256())
+                    h.update(message)
+                    digest = h.finalize()
+
+                    # Send the challenge to the device
+                    if self.devices[dev]['dh_algorithm'].startswith('ecdh'):
+                        data = {
+                            'msg_type': 'platform_public_key',
+                            'renewal': True,
+                            'platform_public_key': base64.b64encode(platform_pk).decode('utf-8'),
+                            'challenge': message + digest
+                        }
+                    else:
+                        data = {
+                            'msg_type': 'platform_public_key',
+                            'renewal': True,
+                            'dh_parameters': base64.b64encode(self.param_bytes).decode('utf-8'),
+                            'platform_public_key': base64.b64encode(platform_pk).decode('utf-8'),
+                            'challenge': message + digest
+                        }
+
                     self.client.publish(
-                        self.devices[dev]['mqtt_topic'], json.dumps(data), qos=1)
-                    print("STEP 2. Platform public key sent to device " +
+                        self.devices[dev]['mqtt_topic'], json.dumps(data, cls=BytesEncoder), qos=1)
+                    print("STEP 2. Platform public key and renewal challenge sent to device " +
                           dev)
                     print("Message published to topic " +
                           self.devices[dev]['mqtt_topic'] + ": " + str(data))
-            time.sleep(10)
+            time.sleep(5)
 
 
 platform = Platform()
