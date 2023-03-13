@@ -290,14 +290,14 @@ class AirSensor:
         if args.verbose:
             print(f"{signature=}")
 
-            data = {'enc': 'AE',
-                    'iv': iv.hex(),
-                    'ct': ct.hex(),
-                    'signature': signature.hex(),
-                    'algo_name': algo_name,
-                    'hash_name': hash_name,
-                    'device_id': self.device_id
-                    }
+        data = {'enc': 'AE',
+                'iv': iv.hex(),
+                'ct': ct.hex(),
+                'signature': signature.hex(),
+                'algo_name': algo_name,
+                'hash_name': hash_name,
+                'device_id': self.device_id
+                }
         # publish the message to the broker
         self.client.publish(self.mqtt_topic_data, json.dumps(data))
         if args.verbose:
