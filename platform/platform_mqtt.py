@@ -205,7 +205,7 @@ class Platform:
             encoding=Encoding.PEM, format=PublicFormat.SubjectPublicKeyInfo)
 
         # Send the platform public key to the device
-        if msg_dec['dh_algorithm'] == 'ecdh':
+        if msg_dec['dh_algorithm'].startswith('ecdh'):
             data = {
                 'msg_type': 'platform_public_key',
                 'platform_public_key': base64.b64encode(platform_pk).decode('utf-8')
@@ -230,7 +230,7 @@ class Platform:
         self.devices[msg_dec['device_id']]['device_public_key'] = load_pem_public_key(
             base64.b64decode(msg_dec['device_public_key']))
 
-        if self.devices[msg_dec['device_id']]['dh_algorithm'] == 'ecdh':
+        if self.devices[msg_dec['device_id']]['dh_algorithm'].startswith('ecdh'):
             self.devices[msg_dec['device_id']]['session_key'] = self.platform_private_key.exchange(ec.ECDH(),
                                                                                                    self.devices[msg_dec['device_id']]['device_public_key'])
         else:
@@ -325,8 +325,13 @@ class Platform:
             del self.devices[msg_dec['device_id']]
 
     def generate_new_dh_parameters(self, algo):
-        if algo == 'ecdh':
-            self.platform_private_key = ec.generate_private_key(ec.SECP384R1())
+        if algo.startswith('ecdh'):
+            if algo == 'ecdh-p256':
+                self.platform_private_key = ec.generate_private_key(ec.SECP256K1())
+            elif algo == 'ecdh-p384':
+                self.platform_private_key = ec.generate_private_key(ec.SECP384R1())
+            elif algo == 'ecdh-p521':
+                self.platform_private_key = ec.generate_private_key(ec.SECP521R1())
             self.platform_public_key = self.platform_private_key.public_key()
             return
         if algo == 'dh-2048':

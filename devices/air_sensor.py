@@ -96,8 +96,8 @@ class AirSensor:
         while True:
             try:
                 self.dh_algorithm = input(
-                    "DH algorithm (dh-2048, dh-3072, dh-4096, ecdh): ")
-                if self.dh_algorithm not in ['dh-2048', 'dh-3072', 'dh-4096', 'ecdh']:
+                    "DH algorithm (dh-2048, dh-3072, dh-4096, ecdh-p256, ecdh-p384, ecdh-p521): ")
+                if self.dh_algorithm not in ['dh-2048', 'dh-3072', 'dh-4096', 'ecdh-p256', 'ecdh-p384', 'ecdh-p521']:
                     raise ValueError
                 break
             except ValueError:
@@ -146,9 +146,14 @@ class AirSensor:
             if args.verbose:
                 print("STEP 3. Generating session key from platform public key...")
 
-            if self.device_info['dh_algorithm'] == 'ecdh':
+            if self.device_info['dh_algorithm'].startswith('ecdh'):
                 # Generate the keys
-                self.device_info['private_key'] = ec.generate_private_key(ec.SECP384R1())
+                if self.device_info['dh_algorithm'] == 'ecdh-p256':
+                    self.device_info['private_key'] = ec.generate_private_key(ec.SECP256K1())
+                elif self.device_info['dh_algorithm'] == 'ecdh-p384':
+                    self.device_info['private_key'] = ec.generate_private_key(ec.SECP384R1())
+                elif self.device_info['dh_algorithm'] == 'ecdh-p521':
+                    self.device_info['private_key'] = ec.generate_private_key(ec.SECP521R1())
                 self.device_info['public_key'] = self.device_info['private_key'].public_key()
             else:    
                 param_bytes = base64.b64decode(msg_dec['dh_parameters'])
@@ -165,7 +170,7 @@ class AirSensor:
             self.device_info['platform_public_key'] = load_pem_public_key(
                 base64.b64decode(msg_dec['platform_public_key']))
 
-            if self.device_info['dh_algorithm'] == 'ecdh':
+            if self.device_info['dh_algorithm'].startswith('ecdh'):
                 # Compute the shared key
                 self.device_info['session_key'] = self.device_info['private_key'].exchange(
                     ec.ECDH(), self.device_info['platform_public_key'])
