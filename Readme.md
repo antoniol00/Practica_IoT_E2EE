@@ -39,7 +39,7 @@ python hum_temp.py    # Hum/Temp sensor
 python thermostat.py  # Thermostat
 ```
 
-## PLAFTORM 🌐
+## PLATFORM 🌐
 
 To view the platform application run this command. It has a web interface to manage the application (the database linked to the application will be created automatically and recreated each time the application is run):
 
