@@ -21,5 +21,5 @@ hashes_algorithms = {  'sha-256': SHA256,
             'sha3-256': SHA3_256,
             'sha3-512': SHA3_512}
 
-
+key_ex_algorithms = ['dh-2048', 'dh-3072', 'dh-4096', 'ecdh-p256', 'ecdh-p384', 'ecdh-p521']
 

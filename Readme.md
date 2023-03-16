@@ -32,13 +32,11 @@ RENEWAL_TIME=###    # Key renewal time (in seconds)
 - **Humidity / Temperature sensor**: measures humidity and temperature and sends a JSON with the information each 5-10 seconds.
 - **Thermostat**: shows information about configured temperature for the house, allowing the user to modify it manually. It can also establish computed values based on the time of the day and the season.
 
-To run an instance of a device use these commands (you can specify --verbose to show all messages):
+To run an instance of a device use this commands (you can specify --verbose to show all messages):
 
 ```
 cd .\devices
-python air_sensor.py  # Air Sensor
-python hum_temp.py    # Hum/Temp sensor
-python thermostat.py  # Thermostat
+python build_sensor.py
 ```
 
 ## PLATFORM 🌐

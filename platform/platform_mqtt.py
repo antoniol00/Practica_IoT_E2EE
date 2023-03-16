@@ -194,18 +194,18 @@ class Platform:
             'encryption_mode': msg_dec['encryption_mode'],
             'encryption_algorithm': msg_dec['encryption_algorithm'],
             'hash_algorithm': msg_dec['hash_algorithm'],
-            'dh_algorithm': msg_dec['dh_algorithm'],
+            'key_ex_algorithm': msg_dec['key_ex_algorithm'],
             'last_update': datetime.now()
         }
 
         print("Generating new DH parameters... (this may take a while)")
-        self.generate_new_dh_parameters(msg_dec['dh_algorithm'])  # generate new DH parameters
-
+        self.generate_new_dh_parameters(msg_dec['key_ex_algorithm'])  # generate new DH parameters
+        print("done")
         platform_pk = self.platform_public_key.public_bytes(
             encoding=Encoding.PEM, format=PublicFormat.SubjectPublicKeyInfo)
 
         # Send the platform public key to the device
-        if msg_dec['dh_algorithm'].startswith('ecdh'):
+        if msg_dec['key_ex_algorithm'].startswith('ecdh'):
             data = {
                 'msg_type': 'platform_public_key',
                 'platform_public_key': base64.b64encode(platform_pk).decode('utf-8')
@@ -230,7 +230,7 @@ class Platform:
         self.devices[msg_dec['device_id']]['device_public_key'] = load_pem_public_key(
             base64.b64decode(msg_dec['device_public_key']))
 
-        if self.devices[msg_dec['device_id']]['dh_algorithm'].startswith('ecdh'):
+        if self.devices[msg_dec['device_id']]['key_ex_algorithm'].startswith('ecdh'):
             self.devices[msg_dec['device_id']]['session_key'] = self.platform_private_key.exchange(ec.ECDH(),
                                                                                                    self.devices[msg_dec['device_id']]['device_public_key'])
         else:
@@ -310,7 +310,7 @@ class Platform:
                                                  ]['encryption_algorithm'],
                                     self.devices[msg_dec['device_id']
                                                  ]['hash_algorithm'],
-                                    self.devices[msg_dec['device_id']]['dh_algorithm'])
+                                    self.devices[msg_dec['device_id']]['key_ex_algorithm'])
 
                     db.session.add(device)
                     db.session.commit()
@@ -359,7 +359,7 @@ class Platform:
                     print("STEP 1. Update the DH parameters for device " + dev)
                     # Generate new DH parameters
                     self.generate_new_dh_parameters(
-                        self.devices[dev]['dh_algorithm'])
+                        self.devices[dev]['key_ex_algorithm'])
                     # Send the platform public key to the device
                     platform_pk = self.platform_public_key.public_bytes(
                         encoding=Encoding.PEM, format=PublicFormat.SubjectPublicKeyInfo)
@@ -383,7 +383,7 @@ class Platform:
                     digest = h.finalize()
 
                     # Send the challenge to the device
-                    if self.devices[dev]['dh_algorithm'].startswith('ecdh'):
+                    if self.devices[dev]['key_ex_algorithm'].startswith('ecdh'):
                         data = {
                             'msg_type': 'platform_public_key',
                             'renewal': True,

@@ -5,43 +5,31 @@ from config import *
 
 mqtt_topic = "GrupoB/hum_temp/data"
 
-# Definimos una función para manejar el evento on_connect del cliente MQTT
-def on_connect(client, userdata, flags, rc):
-    print("Conectado al broker MQTT con código de resultado: " + str(rc))
+import time
+from sensor import Sensor
+class HumTempSensor(Sensor):
+    def message_loop(self):
+        while True:
+            if not self.device_info['is_registered']:
+                continue
 
-    # Suscribirse al tema deseado
-    client.subscribe(mqtt_topic)
+            # Generar valores aleatorios de temperatura y humedad
+            temperatura = round(random.uniform(20, 30), 2)
+            humedad = round(random.uniform(40, 60), 2)
 
-# Definimos una función para manejar el evento on_publish del cliente MQTT
-def on_publish(client, userdata, mid):
-    print("Mensaje publicado con éxito en el tema: " + mqtt_topic)
+            # Crear un mensaje MQTT con los valores de temperatura y humedad
+            message = "{0},{1}".format(temperatura, humedad).encode('utf-8')
+            aad = f"(unencrypted) sent from {self.device_id}".encode('utf-8')
 
-def conectar():
-    client = mqtt.Client()
-    # Configuramos el nombre de usuario y contraseña para la conexión al broker
-    client.username_pw_set(broker_user, broker_pass)
+            if self.device_info['encryption_mode'] == 'AE':
+                self.send_ae_message(
+                    message, self.device_info['aes_key'], self.client, self.device_info['algo_name'], self.device_info['hash_name'])
+            else:
+                self.send_aead_message(
+                    message, self.device_info['aes_key'], self.client, aad, self.device_info['algo_name'], self.device_info['hash_name'])
 
-    # Configuramos las funciones de callback para los eventos de conexión y publicación
-    client.on_connect = on_connect
-    client.on_publish = on_publish
+            # wait 5 seconds before sending the next message
+            time.sleep(5)
 
-    client.connect(mqtt_broker, mqtt_port)
-
-    return client
-
-def enviar_mensaje(mqtt_topic, client):
-   # Generar valores aleatorios de temperatura y humedad
-    temperatura = round(random.uniform(20, 30), 2)
-    humedad = round(random.uniform(40, 60), 2)
-
-    # Crear un mensaje MQTT con los valores de temperatura y humedad
-    mensaje = "{0},{1}".format(temperatura, humedad)
-    # Conectar al broker MQTT y enviar el mensaje
-    client.publish(mqtt_topic, mensaje)
-
-
-client = conectar()
-while True:
-    enviar_mensaje(mqtt_topic, client)
-    # Esperar un intervalo de tiempo aleatorio entre 5 y 10 segundos
-    time.sleep(random.randint(5, 10))
+    def type(self):
+        return 'hum_temp'
