@@ -18,7 +18,7 @@ class HumTempSensor(Sensor):
             humedad = round(random.uniform(40, 60), 2)
 
             # Crear un mensaje MQTT con los valores de temperatura y humedad
-            message = "{0},{1}".format(temperatura, humedad).encode('utf-8')
+            message = "Humidity: {0}%, Temperature: {1}ºC".format(temperatura, humedad).encode('utf-8')
             aad = f"(unencrypted) sent from {self.device_id}".encode('utf-8')
 
             if self.device_info['encryption_mode'] == 'AE':
