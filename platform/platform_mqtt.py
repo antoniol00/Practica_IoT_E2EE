@@ -372,7 +372,6 @@ class Platform:
                         salt=None,
                         info=b'HMAC DH secret key',
                     ).derive(self.devices[dev]['session_key'])
-                    self.devices[dev]['aes_key'] = hkdf
 
                     # Compute the HMAC
                     hmac_key = hkdf[:16]

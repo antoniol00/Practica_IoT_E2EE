@@ -24,7 +24,6 @@ BROKER_USER=###     # User identification
 BROKER_PASS=###     # Password
 RENEWAL_TIME=###    # Key renewal time (in seconds)
 ```
-```
 
 ## DEVICES 🖥️
 
